@@ -92,7 +92,7 @@ function Dashboard() {
                     <div className="mt-4 flex items-center gap-1">
                       <Button asChild size="sm" variant="outline" className="flex-1"><Link to="/editor/$id" params={{ id: r.id }}><Pencil className="w-3.5 h-3.5 mr-1" /> Edit</Link></Button>
                       <Button size="icon" variant="ghost" title="Duplicate" onClick={() => { duplicateResume(r.id); toast.success("Duplicated"); }}><Copy className="w-4 h-4" /></Button>
-                      <Button size="icon" variant="ghost" title="Download" onClick={() => { nav({ to: "/editor/$id", params: { id: r.id }, search: { download: 1 } as never }); }}><Download className="w-4 h-4" /></Button>
+                      <Button asChild size="icon" variant="ghost" title="Download"><Link to="/editor/$id" params={{ id: r.id }}><Download className="w-4 h-4" /></Link></Button>
                       <Button size="icon" variant="ghost" title="Delete" onClick={() => { deleteResume(r.id); toast.success("Deleted"); }}><Trash2 className="w-4 h-4" /></Button>
                     </div>
                   </div>
