@@ -54,48 +54,57 @@ function EditorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary/30">
+    <div className="min-h-screen bg-secondary/30 overflow-x-hidden">
       {/* Toolbar */}
-      <header className="sticky top-0 z-40 bg-background/85 backdrop-blur border-b border-border/60">
-        <div className="px-4 lg:px-6 h-14 flex items-center gap-3">
-          <Button asChild size="icon" variant="ghost"><Link to="/dashboard"><ArrowLeft className="w-4 h-4" /></Link></Button>
+      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur border-b border-border/60">
+        <div className="px-3 sm:px-4 lg:px-6 h-14 flex items-center gap-2 sm:gap-3">
+          <Button asChild size="icon" variant="ghost" className="shrink-0 h-10 w-10"><Link to="/dashboard"><ArrowLeft className="w-4 h-4" /></Link></Button>
           <Logo className="hidden md:inline-flex" />
           <div className="h-6 w-px bg-border mx-2 hidden md:block" />
           <Input
             value={data.name}
             onChange={(e) => updateResume(data.id, { name: e.target.value })}
-            className="max-w-xs font-serif text-lg border-transparent hover:border-border focus-visible:border-border"
+            className="min-w-0 flex-1 sm:flex-initial sm:max-w-xs font-serif text-base sm:text-lg border-transparent hover:border-border focus-visible:border-border h-10"
           />
-          <span className="text-xs text-muted-foreground hidden md:inline-flex items-center gap-1">
+          <span className="text-xs text-muted-foreground hidden xl:inline-flex items-center gap-1 shrink-0">
             <Check className="w-3 h-3" /> Saved · {new Date(savedAt).toLocaleTimeString()}
           </span>
 
-          <div className="ml-auto flex items-center gap-2">
-            <TemplatePicker current={data.template} onChange={(t) => updateResume(data.id, { template: t })} />
-            <ThemePopover data={data} />
-            <AIPopover />
-            <Button onClick={handleExport} disabled={exporting} className="bg-foreground text-background hover:bg-foreground/90">
-              <Download className="w-4 h-4 mr-1" /> {exporting ? "Exporting…" : "PDF"}
+          <div className="ml-auto flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="hidden sm:flex items-center gap-2">
+              <TemplatePicker current={data.template} onChange={(t) => updateResume(data.id, { template: t })} />
+              <ThemePopover data={data} />
+              <AIPopover />
+            </div>
+            <Button onClick={handleExport} disabled={exporting} size="sm" className="bg-foreground text-background hover:bg-foreground/90 h-10">
+              <Download className="w-4 h-4 sm:mr-1" /> <span className="hidden sm:inline">{exporting ? "Exporting…" : "PDF"}</span>
             </Button>
           </div>
         </div>
 
+        {/* Mobile toolbar row (template/theme/AI) */}
+        <div className="sm:hidden flex items-center gap-1.5 px-3 pb-2 overflow-x-auto">
+          <TemplatePicker current={data.template} onChange={(t) => updateResume(data.id, { template: t })} />
+          <ThemePopover data={data} />
+          <AIPopover />
+        </div>
+
         {/* Mobile tabs */}
         <div className="lg:hidden flex border-t border-border/60">
-          <button onClick={() => setTab("edit")} className={`flex-1 py-2 text-sm ${tab==="edit" ? "border-b-2 border-foreground" : "text-muted-foreground"}`}>Edit</button>
-          <button onClick={() => setTab("preview")} className={`flex-1 py-2 text-sm ${tab==="preview" ? "border-b-2 border-foreground" : "text-muted-foreground"}`}>Preview</button>
+          <button onClick={() => setTab("edit")} className={`flex-1 py-3 text-sm font-medium ${tab==="edit" ? "border-b-2 border-foreground" : "text-muted-foreground"}`}>Edit</button>
+          <button onClick={() => setTab("preview")} className={`flex-1 py-3 text-sm font-medium ${tab==="preview" ? "border-b-2 border-foreground" : "text-muted-foreground"}`}>Preview</button>
         </div>
       </header>
 
       <div className="grid lg:grid-cols-2 gap-0 lg:gap-6 lg:p-6 max-w-[1600px] mx-auto">
         {/* Form */}
-        <section className={`p-4 lg:p-0 lg:overflow-y-auto lg:max-h-[calc(100vh-3.5rem-3rem)] ${tab==="preview" ? "hidden lg:block" : ""}`}>
+        <section className={`p-3 sm:p-4 lg:p-0 lg:overflow-y-auto lg:max-h-[calc(100vh-3.5rem-3rem)] min-w-0 ${tab==="preview" ? "hidden lg:block" : ""}`}>
           <ResumeEditor data={data} />
         </section>
 
         {/* Preview */}
-        <section className={`p-4 lg:p-0 lg:sticky lg:top-[5.5rem] lg:self-start ${tab==="edit" ? "hidden lg:block" : ""}`}>
-          <div className="lg:max-h-[calc(100vh-7rem)] overflow-auto rounded-lg">
+        <section className={`p-3 sm:p-4 lg:p-0 lg:sticky lg:top-[5.5rem] lg:self-start min-w-0 ${tab==="edit" ? "hidden lg:block" : ""}`}>
+          <div className="lg:max-h-[calc(100vh-7rem)] overflow-auto rounded-lg w-full">
             <AnimatePresence mode="wait">
               <motion.div
                 key={data.template}
@@ -103,10 +112,9 @@ function EditorPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.25 }}
-                className="origin-top mx-auto"
-                style={{ width: "210mm", transform: "scale(0.78)", transformOrigin: "top center" }}
+                className="w-full"
               >
-                <ResumePreview ref={previewRef} data={data} />
+                <ResumePreview ref={previewRef} data={data} maxScale={1} />
               </motion.div>
             </AnimatePresence>
           </div>

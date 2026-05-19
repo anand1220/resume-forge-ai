@@ -145,11 +145,28 @@
   color: var(--color-ink);
   box-shadow: var(--shadow-paper);
   padding: 14mm 16mm;
-  overflow: hidden;
+  /* Allow content to flow vertically so multi-page resumes are visible */
+  overflow: visible;
 }
 
+/* Keep sections + list items from being split across pages */
+.resume-page section,
+.resume-page .break-inside-avoid,
+.resume-page li {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.resume-page h1, .resume-page h2, .resume-page h3 {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+@page { size: A4; margin: 0; }
+
 @media print {
-  .resume-page { box-shadow: none; margin: 0; }
+  body { background: white !important; }
+  .resume-page { box-shadow: none; margin: 0; width: 210mm; }
+  header, nav, .no-print { display: none !important; }
 }
 
 /* Subtle paper grain */
@@ -164,3 +181,6 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
 }
+
+/* Prevent horizontal scrolling on small screens */
+html, body { max-width: 100%; overflow-x: hidden; }
