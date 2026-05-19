@@ -41,12 +41,12 @@ function EditorPage() {
   if (!data) return null;
 
   const handleExport = async () => {
-    if (!previewRef.current) return;
     setExporting(true);
     try {
-      await exportResumeToPdf(previewRef.current, `${data.name.replace(/\s+/g, "_")}.pdf`);
+      await exportResumeToPdf(data, `${data.name.replace(/\s+/g, "_")}.pdf`);
       toast.success("PDF downloaded");
     } catch (e) {
+      console.error(e);
       toast.error("Export failed");
     } finally {
       setExporting(false);
