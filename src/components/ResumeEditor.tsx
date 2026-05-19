@@ -44,7 +44,7 @@ export function ResumeEditor({ data }: Props) {
     <div>
       {/* Personal */}
       <SectionShell title="Personal Information">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Full Name"><Input value={data.personal.fullName} onChange={(e) => updatePersonal("fullName", e.target.value)} /></Field>
           <Field label="Professional Title"><Input value={data.personal.title} onChange={(e) => updatePersonal("title", e.target.value)} /></Field>
           <Field label="Email"><Input type="email" value={data.personal.email} onChange={(e) => updatePersonal("email", e.target.value)} /></Field>
@@ -93,7 +93,7 @@ export function ResumeEditor({ data }: Props) {
                 <Trash2 className="w-3.5 h-3.5" />
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Position"><Input value={exp.position} onChange={(e) => set((r) => ({ ...r, experience: r.experience.map(x => x.id===exp.id ? { ...x, position: e.target.value } : x) }))} /></Field>
               <Field label="Company"><Input value={exp.company} onChange={(e) => set((r) => ({ ...r, experience: r.experience.map(x => x.id===exp.id ? { ...x, company: e.target.value } : x) }))} /></Field>
               <Field label="Start (YYYY-MM)"><Input type="month" value={exp.startDate} onChange={(e) => set((r) => ({ ...r, experience: r.experience.map(x => x.id===exp.id ? { ...x, startDate: e.target.value } : x) }))} /></Field>
@@ -135,7 +135,7 @@ export function ResumeEditor({ data }: Props) {
             <div className="flex justify-end -mb-2">
               <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => set((r) => ({ ...r, education: r.education.filter(x => x.id !== ed.id) }))}><Trash2 className="w-3.5 h-3.5" /></Button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="School"><Input value={ed.school} onChange={(e) => set((r) => ({ ...r, education: r.education.map(x => x.id===ed.id ? { ...x, school: e.target.value } : x) }))} /></Field>
               <Field label="Degree"><Input value={ed.degree} onChange={(e) => set((r) => ({ ...r, education: r.education.map(x => x.id===ed.id ? { ...x, degree: e.target.value } : x) }))} /></Field>
               <Field label="Field"><Input value={ed.field} onChange={(e) => set((r) => ({ ...r, education: r.education.map(x => x.id===ed.id ? { ...x, field: e.target.value } : x) }))} /></Field>
@@ -152,7 +152,7 @@ export function ResumeEditor({ data }: Props) {
         title="Skills"
         action={<Button size="sm" variant="outline" onClick={() => set((r) => ({ ...r, skills: [...r.skills, { id: uid(), name: "", level: 4, category: "Other" }] }))}><Plus className="w-3.5 h-3.5 mr-1" /> Add</Button>}
       >
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {data.skills.map((s) => (
             <div key={s.id} className="flex gap-2 items-center">
               <Input value={s.name} placeholder="Skill" onChange={(e) => set((r) => ({ ...r, skills: r.skills.map(x => x.id===s.id ? { ...x, name: e.target.value } : x) }))} />
@@ -175,7 +175,7 @@ export function ResumeEditor({ data }: Props) {
             <div className="flex justify-end -mb-2">
               <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => set((r) => ({ ...r, projects: r.projects.filter(x => x.id !== p.id) }))}><Trash2 className="w-3.5 h-3.5" /></Button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Title"><Input value={p.title} onChange={(e) => set((r) => ({ ...r, projects: r.projects.map(x => x.id===p.id ? { ...x, title: e.target.value } : x) }))} /></Field>
               <Field label="Tech Stack"><Input value={p.tech} onChange={(e) => set((r) => ({ ...r, projects: r.projects.map(x => x.id===p.id ? { ...x, tech: e.target.value } : x) }))} /></Field>
               <Field label="GitHub"><Input value={p.github} onChange={(e) => set((r) => ({ ...r, projects: r.projects.map(x => x.id===p.id ? { ...x, github: e.target.value } : x) }))} /></Field>
@@ -273,7 +273,7 @@ function VisibilityToggles({ data }: { data: ResumeData }) {
   const keys = Object.keys(data.visibility) as (keyof ResumeData["visibility"])[];
   return (
     <SectionShell title="Section Visibility">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {keys.map(k => (
           <label key={k} className="flex items-center justify-between border border-border/60 rounded-md px-3 py-2 text-sm capitalize">
             <span>{k}</span>
