@@ -1,16 +1,23 @@
 import { pdf } from "@react-pdf/renderer";
-import { saveAs } from "file-saver";
+import { saveAs } from "file-saver"; // Direct import
 import type { ResumeData } from "./types";
 import { ResumeDocument } from "./pdf-templates";
 
-/**
- * Export a resume to a vector A4 PDF using @react-pdf/renderer.
- * - Selectable, ATS-friendly text
- * - Native multi-page support (no rasterization)
- * - Sharp at any zoom, small file size
- */
 export async function exportResumeToPdf(data: ResumeData, filename?: string) {
-  const name = filename ?? `${(data.name || "resume").replace(/\s+/g, "_")}.pdf`;
-  const blob = await pdf(<ResumeDocument data={data} />).toBlob();
-  saveAs(blob, name);
+  try {
+    // PDF blob generate karo
+    const doc = <ResumeDocument data={data} />;
+    const blob = await pdf(doc).toBlob();
+    
+    // Naam set karo
+    const safeName = data.personal?.fullName || "resume";
+    const name = filename ?? `${safeName.replace(/\s+/g, "_")}.pdf`;
+    
+    // Direct saveAs use karo
+    saveAs(blob, name);
+    console.log("PDF download shuru ho gaya!");
+  } catch (error) {
+    console.error("PDF Export failed:", error);
+    alert("PDF export mein error aaya. Console check karo.");
+  }
 }

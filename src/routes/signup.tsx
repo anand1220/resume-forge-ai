@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AuthShell } from "./login";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase"; // Import supabase
 
 export const Route = createFileRoute("/signup")({
   head: () => ({ meta: [{ title: "Create your account — ResumeForge AI" }, { name: "description", content: "Create your free ResumeForge AI account." }] }),
@@ -16,6 +17,17 @@ function SignupPage() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{ name: string; email: string; password: string }>();
   const login = useResumeStore((s) => s.login);
   const nav = useNavigate();
+
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    if (error) toast.error(error.message);
+  };
+
   return (
     <AuthShell title="Create your account" subtitle="Free forever. No credit card.">
       <form onSubmit={handleSubmit(async (v) => {
@@ -41,6 +53,20 @@ function SignupPage() {
         </div>
         <Button type="submit" disabled={isSubmitting} className="w-full bg-foreground text-background hover:bg-foreground/90">Create account</Button>
       </form>
+
+      {/* Google Login Section */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+        </div>
+      </div>
+      <Button type="button" variant="outline" onClick={handleGoogleLogin} className="w-full">
+        Google
+      </Button>
+
       <p className="mt-6 text-sm text-center text-muted-foreground">Already a member? <Link to="/login" className="underline">Sign in</Link></p>
     </AuthShell>
   );

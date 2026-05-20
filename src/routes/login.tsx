@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase"; // Make sure this path is correct
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in — ResumeForge AI" }, { name: "description", content: "Sign in to ResumeForge AI." }] }),
@@ -16,6 +17,16 @@ function LoginPage() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{ email: string; password: string }>();
   const login = useResumeStore((s) => s.login);
   const nav = useNavigate();
+
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    if (error) toast.error(error.message);
+  };
 
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to keep editing.">
@@ -37,11 +48,26 @@ function LoginPage() {
         </div>
         <Button type="submit" disabled={isSubmitting} className="w-full bg-foreground text-background hover:bg-foreground/90">Sign in</Button>
       </form>
+
+      {/* Google Login Section */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+        </div>
+      </div>
+      <Button type="button" variant="outline" onClick={handleGoogleLogin} className="w-full">
+        Google
+      </Button>
+
       <p className="mt-6 text-sm text-center text-muted-foreground">No account? <Link to="/signup" className="underline">Create one</Link></p>
     </AuthShell>
   );
 }
 
+// AuthShell code remains the same...
 export function AuthShell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">

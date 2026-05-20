@@ -5,35 +5,14 @@ import {
   View,
   StyleSheet,
   Image,
-  Link,
   Font,
 } from "@react-pdf/renderer";
 import type { ResumeData, TemplateId } from "./types";
 import { dateRange } from "@/templates/helpers";
 
-// Register Google Fonts (loaded over the network at render time).
-// Falls back gracefully to built-in Helvetica if registration is skipped.
-try {
-  Font.register({
-    family: "Inter",
-    fonts: [
-      { src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.ttf", fontWeight: 400 },
-      { src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.ttf", fontWeight: 500 },
-      { src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMa25L7.ttf", fontWeight: 700 },
-    ],
-  });
-  Font.register({
-    family: "InstrumentSerif",
-    fonts: [
-      { src: "https://fonts.gstatic.com/s/instrumentserif/v4/jizDREVItHgc8qDIbSTKq4XaRZW7QABjGw.ttf", fontWeight: 400 },
-    ],
-  });
-} catch {
-  /* font registration is best-effort */
-}
-
-const SANS = "Inter";
-const SERIF = "InstrumentSerif";
+// System font fallback: No external network calls, no 404 errors.
+const SANS = "Helvetica";
+const SERIF = "Times-Roman";
 
 const sizeMap = { sm: 9.5, md: 10.5, lg: 11.5 } as const;
 const lhMap = { tight: 1.35, normal: 1.5, loose: 1.7 } as const;
@@ -166,11 +145,6 @@ function ProjectsBlock({ data }: { data: ResumeData }) {
           {p.description ? (
             <Text style={{ fontFamily: SANS, fontSize: fs, lineHeight: lh }}>{p.description}</Text>
           ) : null}
-          {[p.github, p.demo].filter(Boolean).length > 0 ? (
-            <Text style={{ fontFamily: SANS, fontSize: fs - 1, color: "#777" }}>
-              {[p.github, p.demo].filter(Boolean).join(" · ")}
-            </Text>
-          ) : null}
         </View>
       ))}
     </View>
@@ -193,48 +167,26 @@ function EducationBlock({ data }: { data: ResumeData }) {
           </View>
           <Text style={{ fontFamily: SANS, fontSize: fs, color: "#444", lineHeight: lh }}>
             {[ed.degree, ed.field].filter(Boolean).join(", ")}
-            {ed.gpa ? `  ·  GPA ${ed.gpa}` : ""}
           </Text>
-          {ed.description ? (
-            <Text style={{ fontFamily: SANS, fontSize: fs - 0.5, color: "#666", lineHeight: lh }}>{ed.description}</Text>
-          ) : null}
         </View>
       ))}
     </View>
   );
 }
 
-function SkillsBlock({ data, asPills = true }: { data: ResumeData; asPills?: boolean }) {
+function SkillsBlock({ data }: { data: ResumeData }) {
   const { fs, gap, headingFont, accent } = getStyles(data);
   if (!data.visibility.skills || data.skills.length === 0) return null;
   return (
     <View style={{ marginBottom: gap }} wrap>
       <SectionTitle accent={accent} headingFont={headingFont}>Skills</SectionTitle>
-      {asPills ? (
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {data.skills.map((s) => (
-            <Text
-              key={s.id}
-              style={{
-                fontFamily: SANS,
-                fontSize: fs - 0.5,
-                paddingVertical: 2,
-                paddingHorizontal: 6,
-                borderWidth: 1,
-                borderColor: accent,
-                marginRight: 4,
-                marginBottom: 4,
-              }}
-            >
-              {s.name}
-            </Text>
-          ))}
-        </View>
-      ) : (
-        <Text style={{ fontFamily: SANS, fontSize: fs }}>
-          {data.skills.map((s) => s.name).join(", ")}
-        </Text>
-      )}
+      <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+        {data.skills.map((s) => (
+          <Text key={s.id} style={{ fontFamily: SANS, fontSize: fs - 0.5, padding: 4, borderWidth: 1, borderColor: accent, marginRight: 4, marginBottom: 4 }}>
+            {s.name}
+          </Text>
+        ))}
+      </View>
     </View>
   );
 }
@@ -250,25 +202,6 @@ function SummaryBlock({ data }: { data: ResumeData }) {
   );
 }
 
-function CompactList({
-  title,
-  items,
-  data,
-}: {
-  title: string;
-  items: { id: string; text: string }[];
-  data: ResumeData;
-}) {
-  const { fs, lh, gap, headingFont, accent } = getStyles(data);
-  if (!items.length) return null;
-  return (
-    <View style={{ marginBottom: gap }} wrap>
-      <SectionTitle accent={accent} headingFont={headingFont}>{title}</SectionTitle>
-      <Bullets items={items.map((i) => i.text)} fs={fs} lh={lh} />
-    </View>
-  );
-}
-
 function CertificationsBlock({ data }: { data: ResumeData }) {
   const { fs, lh, gap, headingFont, accent } = getStyles(data);
   if (!data.visibility.certifications || data.certifications.length === 0) return null;
@@ -278,25 +211,8 @@ function CertificationsBlock({ data }: { data: ResumeData }) {
       {data.certifications.map((c) => (
         <View key={c.id} style={{ marginBottom: 2 }} wrap={false}>
           <Text style={{ fontFamily: SANS, fontSize: fs, fontWeight: 700, lineHeight: lh }}>{c.name}</Text>
-          <Text style={{ fontFamily: SANS, fontSize: fs - 1, color: "#666" }}>
-            {[c.issuer, c.date].filter(Boolean).join(" · ")}
-          </Text>
+          <Text style={{ fontFamily: SANS, fontSize: fs - 1, color: "#666" }}>{c.issuer}</Text>
         </View>
-      ))}
-    </View>
-  );
-}
-
-function LanguagesBlock({ data }: { data: ResumeData }) {
-  const { fs, lh, gap, headingFont, accent } = getStyles(data);
-  if (!data.visibility.languages || data.languages.length === 0) return null;
-  return (
-    <View style={{ marginBottom: gap }} wrap>
-      <SectionTitle accent={accent} headingFont={headingFont}>Languages</SectionTitle>
-      {data.languages.map((l) => (
-        <Text key={l.id} style={{ fontFamily: SANS, fontSize: fs, lineHeight: lh }}>
-          {l.name} <Text style={{ color: "#666" }}>— {l.proficiency}</Text>
-        </Text>
       ))}
     </View>
   );
@@ -307,220 +223,32 @@ function CustomSectionsBlock({ data }: { data: ResumeData }) {
   return (
     <>
       {data.customSections.map((cs) => (
-        <CompactList key={cs.id} title={cs.title} items={cs.items} data={data} />
+        <View key={cs.id} style={{ marginBottom: 10 }} wrap>
+          <SectionTitle accent={data.theme.accentColor} headingFont={getStyles(data).headingFont}>{cs.title}</SectionTitle>
+          <Bullets items={cs.items.map(i => i.text)} fs={getStyles(data).fs} lh={getStyles(data).lh} />
+        </View>
       ))}
     </>
   );
 }
 
-// ---------- Templates ----------
-
-function ModernDoc({ data }: { data: ResumeData }) {
-  return (
-    <Page size="A4" style={pageBase}>
-      <Header data={data} />
-      <SummaryBlock data={data} />
-      <ExperienceBlock data={data} />
-      <ProjectsBlock data={data} />
-      <EducationBlock data={data} />
-      <SkillsBlock data={data} />
-      <CertificationsBlock data={data} />
-      <LanguagesBlock data={data} />
-      {data.visibility.achievements ? (
-        <CompactList title="Achievements" items={data.achievements} data={data} />
-      ) : null}
-      {data.visibility.interests && data.interests.length > 0 ? (
-        <View style={{ marginBottom: getStyles(data).gap }} wrap>
-          <SectionTitle accent={data.theme.accentColor} headingFont={getStyles(data).headingFont}>Interests</SectionTitle>
-          <Text style={{ fontFamily: SANS, fontSize: getStyles(data).fs }}>
-            {data.interests.map((i) => i.text).join(" · ")}
-          </Text>
-        </View>
-      ) : null}
-      <CustomSectionsBlock data={data} />
-    </Page>
-  );
-}
-
-function AtsDoc({ data }: { data: ResumeData }) {
-  // ATS-optimized: single column, no colors, no pills.
-  const { fs, lh, gap, accent } = getStyles(data);
-  const headingFont = SANS;
-  return (
-    <Page size="A4" style={{ ...pageBase, paddingHorizontal: 50 }}>
-      <Text style={{ fontFamily: SANS, fontSize: 20, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2 }}>
-        {data.personal.fullName}
-      </Text>
-      {data.personal.title ? (
-        <Text style={{ fontFamily: SANS, fontSize: fs + 0.5, marginTop: 2 }}>{data.personal.title}</Text>
-      ) : null}
-      <Text style={{ fontFamily: SANS, fontSize: fs - 1, marginTop: 3, color: "#222" }}>
-        {[data.personal.email, data.personal.phone, data.personal.address, data.personal.linkedin, data.personal.github, data.personal.website]
-          .filter(Boolean)
-          .join(" | ")}
-      </Text>
-      <View style={{ borderBottomWidth: 1, borderBottomColor: "#000", marginVertical: 8 }} />
-      <SummaryBlock data={data} />
-      <ExperienceBlock data={data} />
-      <EducationBlock data={data} />
-      <SkillsBlock data={data} asPills={false} />
-      <ProjectsBlock data={data} />
-      <CertificationsBlock data={data} />
-      <LanguagesBlock data={data} />
-      <CustomSectionsBlock data={data} />
-    </Page>
-  );
-}
-
-function MinimalDoc({ data }: { data: ResumeData }) {
-  const { fs, lh, accent } = getStyles(data);
-  return (
-    <Page size="A4" style={pageBase}>
-      <Header data={data} centered />
-      <View style={{ alignItems: "center", marginBottom: 12 }}>
-        <View style={{ width: 60, height: 1.5, backgroundColor: accent }} />
-      </View>
-      {data.visibility.summary && data.personal.summary ? (
-        <Text
-          style={{
-            fontFamily: SERIF,
-            fontSize: fs + 1,
-            fontStyle: "italic",
-            textAlign: "center",
-            marginBottom: 14,
-            lineHeight: lh,
-            maxWidth: 420,
-            marginHorizontal: "auto",
-          }}
-        >
-          {data.personal.summary}
-        </Text>
-      ) : null}
-      <ExperienceBlock data={data} />
-      <EducationBlock data={data} />
-      <SkillsBlock data={data} />
-      <ProjectsBlock data={data} />
-      <CustomSectionsBlock data={data} />
-    </Page>
-  );
-}
-
-function SidebarDoc({ data }: { data: ResumeData }) {
-  const { fs, lh, accent } = getStyles(data);
-  return (
-    <Page size="A4" style={{ padding: 0, fontFamily: SANS, fontSize: fs }}>
-      <View style={{ flexDirection: "row", minHeight: "100%" }}>
-        <View style={{ width: "34%", backgroundColor: "#1a1a1a", color: "#f5f5f5", padding: 24 }}>
-          {data.personal.photoUrl ? (
-            <Image src={data.personal.photoUrl} style={{ width: 80, height: 80, borderRadius: 40, marginBottom: 12 }} />
-          ) : null}
-          <Text style={{ fontFamily: SERIF, fontSize: 22, color: "#fff", lineHeight: 1.1 }}>{data.personal.fullName}</Text>
-          {data.personal.title ? (
-            <Text style={{ fontSize: fs, color: accent, marginTop: 4 }}>{data.personal.title}</Text>
-          ) : null}
-          <Text style={{ fontSize: fs - 1, color: accent, marginTop: 16, textTransform: "uppercase", letterSpacing: 1.5 }}>Contact</Text>
-          <View style={{ marginTop: 4 }}>
-            {[data.personal.email, data.personal.phone, data.personal.address, data.personal.website, data.personal.linkedin, data.personal.github]
-              .filter(Boolean)
-              .map((x, i) => (
-                <Text key={i} style={{ fontSize: fs - 0.5, color: "#ddd", marginBottom: 2, lineHeight: lh }}>
-                  {x}
-                </Text>
-              ))}
-          </View>
-          {data.visibility.skills && data.skills.length > 0 ? (
-            <>
-              <Text style={{ fontSize: fs - 1, color: accent, marginTop: 14, textTransform: "uppercase", letterSpacing: 1.5 }}>Skills</Text>
-              <View style={{ marginTop: 4 }}>
-                {data.skills.map((s) => (
-                  <View key={s.id} style={{ marginBottom: 4 }}>
-                    <Text style={{ fontSize: fs - 0.5, color: "#eee" }}>{s.name}</Text>
-                    <View style={{ height: 2, backgroundColor: "#444", marginTop: 2 }}>
-                      <View style={{ width: `${s.level * 20}%`, height: "100%", backgroundColor: accent }} />
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </>
-          ) : null}
-          {data.visibility.languages && data.languages.length > 0 ? (
-            <>
-              <Text style={{ fontSize: fs - 1, color: accent, marginTop: 14, textTransform: "uppercase", letterSpacing: 1.5 }}>Languages</Text>
-              <View style={{ marginTop: 4 }}>
-                {data.languages.map((l) => (
-                  <Text key={l.id} style={{ fontSize: fs - 0.5, color: "#ddd", lineHeight: lh }}>
-                    {l.name} — {l.proficiency}
-                  </Text>
-                ))}
-              </View>
-            </>
-          ) : null}
-        </View>
-        <View style={{ flex: 1, padding: 28 }}>
-          <SummaryBlock data={data} />
-          <ExperienceBlock data={data} />
-          <EducationBlock data={data} />
-          <ProjectsBlock data={data} />
-          <CertificationsBlock data={data} />
-          <CustomSectionsBlock data={data} />
-        </View>
-      </View>
-    </Page>
-  );
-}
-
-function ExecutiveDoc({ data }: { data: ResumeData }) {
-  const { fs, lh, accent } = getStyles(data);
-  return (
-    <Page size="A4" style={pageBase}>
-      <View style={{ borderBottomWidth: 3, borderBottomColor: accent, paddingBottom: 8, marginBottom: 12 }}>
-        <Text style={{ fontFamily: SERIF, fontSize: 36, color: "#111" }}>{data.personal.fullName}</Text>
-        <Text style={{ fontFamily: SANS, fontSize: fs + 1, color: accent, textTransform: "uppercase", letterSpacing: 3, marginTop: 2 }}>
-          {data.personal.title}
-        </Text>
-        <Text style={{ fontFamily: SANS, fontSize: fs - 1, color: "#555", marginTop: 6 }}>
-          {[data.personal.email, data.personal.phone, data.personal.address, data.personal.linkedin, data.personal.website].filter(Boolean).join("  ·  ")}
-        </Text>
-      </View>
-      <SummaryBlock data={data} />
-      <ExperienceBlock data={data} />
-      <EducationBlock data={data} />
-      <SkillsBlock data={data} />
-      <ProjectsBlock data={data} />
-      <CertificationsBlock data={data} />
-      <LanguagesBlock data={data} />
-      <CustomSectionsBlock data={data} />
-    </Page>
-  );
-}
-
 const pageBase = StyleSheet.create({
-  page: {
-    padding: 40,
-    fontFamily: SANS,
-    fontSize: 10.5,
-    color: "#111",
-  },
+  page: { padding: 40, fontFamily: SANS, fontSize: 10.5, color: "#111" },
 }).page;
 
-const DOCS: Record<TemplateId, (props: { data: ResumeData }) => React.ReactElement> = {
-  modern: ModernDoc,
-  ats: AtsDoc,
-  minimal: MinimalDoc,
-  sidebar: SidebarDoc,
-  executive: ExecutiveDoc,
-};
-
 export function ResumeDocument({ data }: { data: ResumeData }) {
-  const Tpl = DOCS[data.template] ?? ModernDoc;
   return (
-    <Document
-      title={`${data.personal.fullName || "Resume"} — ${data.name}`}
-      author={data.personal.fullName}
-      subject="Resume"
-      creator="ResumeForge AI"
-    >
-      <Tpl data={data} />
+    <Document title="Resume" author="ResumeForge" creator="ResumeForge AI">
+      <Page size="A4" style={pageBase}>
+        <Header data={data} />
+        <SummaryBlock data={data} />
+        <ExperienceBlock data={data} />
+        <EducationBlock data={data} />
+        <SkillsBlock data={data} />
+        <ProjectsBlock data={data} />
+        <CertificationsBlock data={data} />
+        <CustomSectionsBlock data={data} />
+      </Page>
     </Document>
   );
 }
