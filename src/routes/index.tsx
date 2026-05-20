@@ -94,31 +94,26 @@ function Landing() {
 
       {/* TEMPLATES SHOWCASE */}
       <section id="templates" className="max-w-6xl mx-auto px-6 py-20 border-t border-border/60">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">The library</div>
-            <h2 className="font-serif text-4xl md:text-5xl mt-3">Five templates, one source of truth.</h2>
+        {/* TEMPLATES SHOWCASE */}
+<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  {Object.keys(TEMPLATES).map((k) => {
+    const key = k as keyof typeof TEMPLATES;
+    const Tpl = TEMPLATES[key].component;
+    return (
+      <Link key={key} to="/templates" className="group block">
+        <div className="aspect-[210/297] bg-paper border border-border/60 rounded-md overflow-hidden shadow-soft group-hover:shadow-paper transition-shadow">
+          <div className="origin-top-left scale-[0.28]" style={{ width: "210mm" }}>
+            <div className="resume-page paper-grain"><Tpl data={sample} /></div>
           </div>
-          <Link to="/templates" className="hidden md:inline-flex items-center text-sm gap-1 underline">Browse all <ArrowRight className="w-3.5 h-3.5" /></Link>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {(["modern","ats","minimal","executive"] as const).map((k) => {
-            const Tpl = TEMPLATES[k].component;
-            return (
-              <Link key={k} to="/templates" className="group block">
-                <div className="aspect-[210/297] bg-paper border border-border/60 rounded-md overflow-hidden shadow-soft group-hover:shadow-paper transition-shadow">
-                  <div className="origin-top-left scale-[0.28]" style={{ width: "210mm" }}>
-                    <div className="resume-page paper-grain"><Tpl data={sample} /></div>
-                  </div>
-                </div>
-                <div className="mt-3 flex justify-between items-baseline">
-                  <span className="font-serif text-lg">{TEMPLATES[k].name}</span>
-                  <span className="text-xs text-muted-foreground">Free</span>
-                </div>
-              </Link>
-            );
-          })}
+        <div className="mt-3 flex justify-between items-baseline">
+          <span className="font-serif text-lg">{TEMPLATES[key].name}</span>
+          <span className="text-xs text-muted-foreground">Free</span>
         </div>
+      </Link>
+    );
+  })}
+</div>
       </section>
 
       {/* TESTIMONIALS */}
