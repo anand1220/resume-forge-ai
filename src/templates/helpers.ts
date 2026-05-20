@@ -32,3 +32,10 @@ export function getThemeVars(theme: ResumeData["theme"]) {
         : '"Inter", system-ui, sans-serif',
   } as React.CSSProperties;
 }
+
+/** Normalize a possibly-protocol-less URL for href attributes. */
+export function hrefify(url: string) {
+  if (!url) return "#";
+  if (/^https?:\/\//i.test(url) || url.startsWith("mailto:")) return url;
+  return `https://${url}`;
+}

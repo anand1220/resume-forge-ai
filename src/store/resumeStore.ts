@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { ResumeData, User } from "@/lib/types";
+import type { ResumeData, User, SectionKey } from "@/lib/types";
+import { DEFAULT_SECTION_ORDER } from "@/lib/types";
 import { createEmptyResume, uid } from "@/lib/sample";
 
 interface State {
@@ -12,9 +13,36 @@ interface State {
   deleteResume: (id: string) => void;
   updateResume: (id: string, patch: Partial<ResumeData> | ((r: ResumeData) => ResumeData)) => void;
   getResume: (id: string) => ResumeData | undefined;
+  setUser: (user: User | null) => void;
   login: (email: string, name?: string) => void;
   logout: () => void;
   toggleDark: () => void;
+}
+
+/** Backfill new fields on resumes saved before they existed. */
+function migrate(r: ResumeData): ResumeData {
+  const links = Array.isArray(r.links) ? r.links : [];
+  const visibility = {
+    ...{
+      summary: true,
+      experience: true,
+      education: true,
+      projects: true,
+      skills: true,
+      certifications: true,
+      languages: true,
+      achievements: true,
+      interests: true,
+      links: true,
+    },
+    ...(r.visibility ?? {}),
+  };
+  const presentOrder = Array.isArray(r.sectionOrder) ? r.sectionOrder : [];
+  const sectionOrder: SectionKey[] = [
+    ...presentOrder.filter((k): k is SectionKey => DEFAULT_SECTION_ORDER.includes(k as SectionKey)),
+  ];
+  for (const k of DEFAULT_SECTION_ORDER) if (!sectionOrder.includes(k)) sectionOrder.push(k);
+  return { ...r, links, visibility, sectionOrder };
 }
 
 export const useResumeStore = create<State>()(
@@ -41,8 +69,7 @@ export const useResumeStore = create<State>()(
         set({ resumes: [copy, ...get().resumes] });
         return copy.id;
       },
-      deleteResume: (id) =>
-        set({ resumes: get().resumes.filter((r) => r.id !== id) }),
+      deleteResume: (id) => set({ resumes: get().resumes.filter((r) => r.id !== id) }),
       updateResume: (id, patch) =>
         set({
           resumes: get().resumes.map((r) => {
@@ -52,6 +79,7 @@ export const useResumeStore = create<State>()(
           }),
         }),
       getResume: (id) => get().resumes.find((r) => r.id === id),
+      setUser: (user) => set({ user }),
       login: (email, name) =>
         set({ user: { id: uid(), email, name: name ?? email.split("@")[0] } }),
       logout: () => set({ user: null }),
@@ -66,7 +94,10 @@ export const useResumeStore = create<State>()(
     {
       name: "resumeforge-store",
       onRehydrateStorage: () => (state) => {
-        if (state?.darkMode && typeof document !== "undefined") {
+        if (!state) return;
+        // Migrate old resume shapes
+        state.resumes = state.resumes.map(migrate);
+        if (state.darkMode && typeof document !== "undefined") {
           document.documentElement.classList.add("dark");
         }
       },

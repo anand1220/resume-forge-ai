@@ -1,26 +1,4 @@
-export type TemplateId =
-  | "modern"
-  | "ats"
-  | "minimal"
-  | "sidebar"
-  | "executive"
-  | "classic"
-  | "creative"
-  | "compact"
-  | "elegant"
-  | "technical";
-
-export type SectionKey =
-  | "summary"
-  | "experience"
-  | "education"
-  | "projects"
-  | "skills"
-  | "certifications"
-  | "languages"
-  | "achievements"
-  | "interests"
-  | "links";
+export type TemplateId = "modern" | "ats" | "minimal" | "sidebar" | "executive";
 
 export interface PersonalInfo {
   fullName: string;
@@ -69,7 +47,7 @@ export interface ProjectItem {
 export interface SkillItem {
   id: string;
   name: string;
-  level: number;
+  level: number; // 1-5
   category: string;
 }
 
@@ -91,12 +69,6 @@ export interface LanguageItem {
   proficiency: string;
 }
 
-export interface LinkItem {
-  id: string;
-  label: string;
-  url: string;
-}
-
 export interface CustomSection {
   id: string;
   title: string;
@@ -104,7 +76,7 @@ export interface CustomSection {
 }
 
 export interface ThemeSettings {
-  accentColor: string;
+  accentColor: string; // hex
   fontFamily: "serif" | "sans";
   fontSize: "sm" | "md" | "lg";
   spacing: "tight" | "normal" | "loose";
@@ -121,7 +93,6 @@ export interface SectionVisibility {
   languages: boolean;
   achievements: boolean;
   interests: boolean;
-  links: boolean;
 }
 
 export interface ResumeData {
@@ -138,9 +109,8 @@ export interface ResumeData {
   languages: LanguageItem[];
   achievements: SimpleItem[];
   interests: SimpleItem[];
-  links: LinkItem[];
   customSections: CustomSection[];
-  sectionOrder: SectionKey[];
+  sectionOrder: string[];
   visibility: SectionVisibility;
   updatedAt: number;
   createdAt: number;
@@ -151,29 +121,3 @@ export interface User {
   name: string;
   email: string;
 }
-
-export const DEFAULT_SECTION_ORDER: SectionKey[] = [
-  "summary",
-  "experience",
-  "education",
-  "projects",
-  "skills",
-  "links",
-  "certifications",
-  "languages",
-  "achievements",
-  "interests",
-];
-
-export const SECTION_LABELS: Record<SectionKey, string> = {
-  summary: "Summary",
-  experience: "Experience",
-  education: "Education",
-  projects: "Projects",
-  skills: "Skills",
-  certifications: "Certifications",
-  languages: "Languages",
-  achievements: "Achievements",
-  interests: "Interests",
-  links: "Links",
-};
